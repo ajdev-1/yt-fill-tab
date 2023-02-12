@@ -13,12 +13,52 @@ function enableSwitcher() {
     });
 }
 
-function getEmbedUrl(watchUrl) {
-    return watchUrl.replace("watch?v=", "embed/").concat("?autoplay=1");
+function getEmbedUrl(watchUrl, tabId) {
+    chrome.scripting.executeScript({
+        target: {
+            tabId: tabId,
+        },
+        args: [chrome],
+        func: (chrome) => {
+            alert(chrome.tabs.query);
+            chrome.tabs.query({
+                active: true,
+                currentWindow: true
+              }, function(tabs) {
+                  // 2. Validate URL
+                  const tabUrl = tabs[0].url;
+                  const tabId = tabs[0].id;
+                  
+                  const video = document.getElementsByTagName("video");
+                  let embedUrl = watchUrl.replace("watch?v=", "embed/").concat("?autoplay=1");
+      
+                  if (video.length > 0) {
+                      const startAt = video[0].currentTime;
+                      embedUrl = embedUrl.concat(`&start=${startAt}`);
+                  }
+                  
+                  chrome.tabs.update({
+                      url: embedUrl
+                  });
+              })
+        },
+    });
 }
 
-function getWatchUrl(embedUrl) {
-    return embedUrl.replace("embed/", "watch?v=");
+function getWatchUrl(embedUrl, tabId) {
+    chrome.scripting.executeScript({
+        target: {
+            tabId: tabId,
+        },
+        func: () => {
+            const startAt = document.getElementsByTagName("video")[0].currentTime;
+            const watchUrl = embedUrl.replace("embed/", "watch?v=").concat(`&start=${startAt}&autoplay=1`);
+
+            chrome.tabs.update(tabId, {
+                url: watchUrl
+            });
+        },
+    });
 }
 
 function validateUrl(clickedChecker) {
@@ -49,9 +89,7 @@ function validateUrl(clickedChecker) {
                 if (clickedChecker) {
                     // 5. Redirect to watch mode
                     checkbox.checked = false;
-                    chrome.tabs.update(tabId, {
-                        url: getWatchUrl(tabUrl)
-                    });
+                    getWatchUrl(tabUrl, tabId);
                 }
             } else {
                 // 4. Adjust checker look
@@ -60,9 +98,7 @@ function validateUrl(clickedChecker) {
                 if (clickedChecker) {
                     // 5. Redirect to embed mode
                     checkbox.checked = true;
-                    chrome.tabs.update(tabId, {
-                        url: getEmbedUrl(tabUrl)
-                    });
+                    getEmbedUrl(tabUrl, tabId);
                 }
             }
           } else {
