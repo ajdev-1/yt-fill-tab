@@ -1,6 +1,6 @@
 // Get DOM components and regex.
-const YT_EMBED_URL_REGEX = /^https:\/\/www\.youtube\.com\/embed\/[a-z0-9A-Z]+$/;
-const YT_WATCH_URL_REGEX = /^https:\/\/www\.youtube\.com\/watch\?v\=[a-z0-9A-Z]+$/;
+const YT_EMBED_URL_REGEX = /^https:\/\/www\.youtube\.com\/embed\/[a-z0-9A-Z-_]+$/;
+const YT_WATCH_URL_REGEX = /^https:\/\/www\.youtube\.com\/watch\?v\=[a-z0-9A-Z-_]+$/;
 const switchWrapper = document.getElementById("switch-wrapper");
 const invalidUrlMessage = document.getElementById("invalid-url-message");
 
